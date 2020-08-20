@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Your Account
+{% endblock %}
+
+{% block main %}
+  <div class="form_div">
+    
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-secondary alert_form" role="alert">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <h1 class="form_div_title">ACCOUNT</h1>
+    
+    <table class="table table-dark leaderboard">
+        <thead>
+          <tr>
+            <th scope="col" class="column">Username</th>
+            <th scope="col" class="column">Points</th>
+            <th scope="col" class="column">Position</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr>
+              <td>{{ current_user.username }}</td>
+              <td>{{ current_user.points }}</td>
+              <td>{{ current_user.leaderboard_position }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <form action="/account" method="post">
+      <div class="form-group">
+        <label for="change_pass">Change Password:</label>
+        <input class="form-control" name="password" placeholder="Current password" type="text" id="change_pass" autocomplete="off" required>
+      </div>
+      <div class="form-group">
+        <input class="form-control" name="new_password" placeholder="New password" type="password" title="Don't worry, we don't store your password" required>
+      </div>
+      <div class="form-group">
+        <input class="form-control" name="confirmation" placeholder="Confirm new password" type="password" title="Don't worry, we don't store your password" required>
+      </div>
+      <button class="btn btn-dark" type="submit" name="btn" value="change_pass">Update Password</button>
+    </form>
+
+    <form action="/account" method="post">
+      <div class="form-group">
+        <label for="del_account">Delete Account:</label>
+        <input autocomplete="off" class="form-control" name="password" placeholder="Password" type="text" maxlength="20" id="del_account" required>
+      </div>
+      <button class="btn btn-dark" type="submit" name="btn" value="del_account">Delete Account</button>
+    </form>
+
+  </div>
+
+{% endblock %}

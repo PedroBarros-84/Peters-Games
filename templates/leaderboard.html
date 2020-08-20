@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Leaderboard
+{% endblock %}
+
+{% block main %}
+  <div class="leaderboard_div">
+
+    <h1 class="leaderboard_title">TOP 10</h1>
+
+    <table class="table table-dark leaderboard">
+      <thead>
+        <tr>
+          <th scope="col" class="column">Position</th>
+          <th scope="col" class="column">Username</th>
+          <th scope="col" class="column">Points</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for player in top10 %}
+          <tr>
+            <td>{{ player['leaderboard_position'] }}</td>
+            <td>{{ player['username'] }}</td>
+            <td>{{ player['points'] }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
+  </div>
+{% endblock %}

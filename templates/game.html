@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+{% endblock %}
+
+
+{% block timepoints %}
+  <!-- Modal -->
+  <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel"><span id="modalTitle"></span></h5>
+        </div>
+        <div class="modal-body">
+          <span id="modalBody"></span>
+        </div>
+        <div class="modal-footer">
+          <form action="/game" method="post">
+            <input class="points_input" name="points" type="number" value="0">
+            <button type="submit" class="btn btn-dark">Try Again</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="timepoints">
+    
+    <div class="timer">
+      <h3 class="timepoints_text">TIME LEFT</h3><span class="numbers" id="timer">1:00</span>
+    </div>
+
+    {% if session.user_id %}
+    <div class="points">
+      <h3 class="timepoints_text">YOUR POINTS</h3><span class="numbers" id="points">{{ points }}</span>
+    </div>
+    {% endif %}
+
+  </div>
+
+{% endblock %}
+
+
+{% block main %}
+
+  <div class="gametable">
+    {% for cardnumber in cardsequence %}
+      <div class="flip-card" id="{{ cardnumber }}">
+      	<div class="flip-card-front">
+      		<img src="/static/images/card.png">
+      	</div>
+      	<div class="flip-card-back">
+      		<img src="/static/images/{{ cardnumber }}.png">
+      	</div>
+      </div>
+    {% endfor %}
+  </div>
+
+{% endblock %}
