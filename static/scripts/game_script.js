@@ -144,7 +144,7 @@ $(document).ready(function(){
                 /* Count pairs */
                 setTimeout(function() { pairCount += 1; }, 300);
 
-                /* Add point */
+                /* Add points */
                 setTimeout(function() { user_points += 2; }, 300);
                 setTimeout(function() { $("#points").text(user_points); }, 300);
             }
