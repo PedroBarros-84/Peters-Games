@@ -12,30 +12,36 @@ $(document).ready(function(){
     var clickEnabled = true;
     var user_points = Number($('#points').text());
 
-    /* Countdown Timer function and final points calculation */
+    /* Countdown Timer function */
     function countDown() {
 
         /* Decrease one second every repetition */
         miliseconds -= 1000;
 
-        /* When less than 10 seconds show timer with extra zero*/
-        if (miliseconds < 10000) {
-            document.getElementById("timer").innerHTML = '0:0' + miliseconds/1000;
-        }
-
-        /* When less than 1 minute show timer with no decimal zero*/
-        else {
-            document.getElementById("timer").innerHTML = '0:' + miliseconds/1000;
-        }
+        let minutes = Math.trunc(miliseconds / 60000);
+        let seconds = (miliseconds - (minutes * 60000)) / 1000;
 
         /* When time ends up */
         if (miliseconds <= 0) {
             clearInterval(timer);
-            document.getElementById("timer").innerHTML = '0:0' + miliseconds/1000;
+            document.getElementById("timer").innerHTML = '0:00';
         }
+
+        else {
+            document.getElementById("timer").innerHTML = 
+                minutes + ':' + (seconds < 10 ? ('0' + seconds) : seconds);
+        }
+
+        calculatePoints();
+    }
+
+
+    /* Final points calculation */
+    function calculatePoints() {
 
         /* When user finds all 15 pairs before timer ends */
         if (miliseconds > 0 && pairCount === 15) {
+            
             clearInterval(timer);
 
             /* Add 15 points */
@@ -53,6 +59,7 @@ $(document).ready(function(){
 
         /* When user does not find all 15 pairs before timer ends */
         else if (miliseconds <= 0 && pairCount <= 15) {
+            
             clearInterval(timer);
 
             /* When user has 10 points or more, subtract 10 points  */
