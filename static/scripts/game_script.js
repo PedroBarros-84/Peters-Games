@@ -1,7 +1,7 @@
 $(document).ready(function(){
 
     /* Set global variables for Countdown Timer function */
-    var miliseconds = 60000;
+    var miliseconds = 75000;
     var timer = null;
     var countDownStarted = false;
 
