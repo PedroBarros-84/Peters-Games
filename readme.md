@@ -1,6 +1,12 @@
-This is a Matching Pairs Game Webapp!
-Players have one minute to flip over 15 matching pairs.
-App users can register an account to save their game points for each found pair and finished game.
-Positions and respective username and points are shown on a leaderboard for the top 10 players in the database.
-App was made with Python3, Flask/Jinja and SQLAlchemy, Postgresql database, layouts with HTML/CSS and game algorithms with Javascript.
-Responsiveness was tested for desktops, laptops, tablets and smartphones.
+# Peters Matching Pairs
+
+### Check our app deployed -> [here](https://peters-matching-pairs.herokuapp.com)
+
+### Project Description
+My final project for Harvard CS50 course.  
+I always loved memory games, and so decided to implement one of my favourites: The Matching Pairs!  
+Players have to find all 15 pairs before the countdown ends. If they have an account, all found pairs and successful finished game will add points to their personal score. The ten highest scores appear on the leaderboard.
+
+### Technologies
+Python3, Flask, Jinja, SQLAlchemy, PostgreSQL, HTML5, CSS3, Javascript
+
