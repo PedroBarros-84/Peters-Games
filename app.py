@@ -106,9 +106,9 @@ def register():
         # Query database for username
         rows = db.execute("SELECT * FROM users WHERE username = :name", {"name": request.form.get("username")}).fetchall()
 
-        words = ('fuck', 'suck', 'shit', 'kill', 'ass', 'cock', 'dick', 'nigga', 'prick', 'bitch',
-                'whore', 'cunt', 'crap', 'foda', 'merda', 'caralho', 'puta', 'cona', 'mangalho',
-                'pila', 'tetas', 'fode')
+        # Fetch all curse words from database
+        cursewords = db.execute("SELECT word FROM cursewords").fetchall()
+        words = tuple(map(lambda word: word[0], cursewords))
 
         # Ensure username was submitted
         if not request.form.get("username"):

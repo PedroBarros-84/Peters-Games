@@ -44,7 +44,7 @@ Temporary Items
 
 # My files
 environmentVariables.txt
-os.environ export
+cursewords.txt
 /flask_session
 /__pycache__
 
