@@ -4,9 +4,6 @@ import psycopg2
 
 from psycopg2.extras import DictCursor
 
-from dotenv import load_dotenv
-load_dotenv()
-
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
 from flask_mail import Mail, Message
