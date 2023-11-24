@@ -1,34 +1,38 @@
-{% extends "layout.html" %}
+{% extends "layout.html" %} {% block title %} Log In {% endblock %} {% block
+main %}
 
-{% block title %}
-    Log In
-{% endblock %}
+<div class="form_div">
+	{% with messages = get_flashed_messages() %} {% if messages %}
+	<div class="alert alert-secondary alert_form" role="alert">
+		{% for message in messages %} {{ message }} {% endfor %}
+	</div>
+	{% endif %} {% endwith %}
 
-{% block main %}
+	<h1 class="form_div_title">LOG IN</h1>
 
-  <div class="form_div">
-
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="alert alert-secondary alert_form" role="alert">
-          {% for message in messages %}
-            {{ message }}
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-
-    <h1 class="form_div_title">LOG IN</h1>
-
-    <form action="/login" method="post">
-      <div class="form-group">
-        <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text" required>
-      </div>
-      <div class="form-group">
-        <input class="form-control" name="password" placeholder="Password" type="password" required>
-      </div>
-      <button class="btn btn-dark" type="submit">Log In</button>
-    </form>
-  </div>
+	<form action="/login" method="post">
+		<div class="form-group">
+			<input
+				autocomplete="off"
+				autofocus
+				class="form-control"
+				name="username"
+				placeholder="Username"
+				type="text"
+				required
+			/>
+		</div>
+		<div class="form-group">
+			<input
+				class="form-control"
+				name="password"
+				placeholder="Password"
+				type="password"
+				required
+			/>
+		</div>
+		<button class="btn btn-dark" type="submit">Log In</button>
+	</form>
+</div>
 
 {% endblock %}

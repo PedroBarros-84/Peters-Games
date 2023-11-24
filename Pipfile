@@ -8,9 +8,9 @@ verify_ssl = true
 [packages]
 gunicorn = "*"
 flask-session = "*"
-flask-sqlalchemy = "*"
 flask-mail = "*"
 psycopg2 = "*"
+werkzeug = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.12"

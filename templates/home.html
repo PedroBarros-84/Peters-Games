@@ -1,34 +1,32 @@
-{% extends "layout.html" %}
+{% extends "layout.html" %} {% block title %} Instructions {% endblock %} {%
+block main %}
 
-{% block title %}
-  Instructions
-{% endblock %}
+<div class="homediv">
+	{% with messages = get_flashed_messages() %} {% if messages %}
+	<div class="alert alert-secondary alert_home" role="alert">
+		{% for message in messages %} {{ message }} {% endfor %}
+	</div>
+	{% endif %} {% endwith %}
 
-{% block main %}
+	<h1 class="cover-heading">Matching Pairs Game!</h1>
 
-  <div class="homediv">
+	<p class="lead">
+		Hello! Want to train your memory in a ludic way?<br />Play our matching
+		pairs game.<br />Find all 15 pairs in less than one minute.
+	</p>
 
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="alert alert-secondary alert_home" role="alert">
-          {% for message in messages %}
-            {{ message }}
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
+	<p class="lead">
+		<a href="/game" class="btn btn-lg btn-light">Play Now!</a>
+	</p>
 
-    <h1 class="cover-heading">Matching Pairs Game!</h1>
+	<p class="instructions">
+		<a class="registerlink" href="/register">Register</a> your account to join
+		our leader board.
+	</p>
 
-    <p class="lead">Hello! Want to train your memory in a ludic way?<br>Play our matching pairs game.<br>Find all 15 pairs in less than one minute.</p>
-    
-    <p class="lead">
-      <a href="/game" class="btn btn-lg btn-light">Play Now!</a>
-    </p>
-
-    <p class="instructions"><a class="registerlink" href="/register">Register</a> your account to join our leader board.</p>
-    
-    <p  class="instructions">Each pair match earns you 2 points.<br>Completing the game rewards you with extra 15 points.<br>You'll lose 10 points for every unfinished game.</p>
-  
-  </div>
+	<p class="instructions">
+		Each pair match earns you 2 points.<br />Completing the game rewards you
+		with extra 15 points.<br />You'll lose 10 points for every unfinished game.
+	</p>
+</div>
 {% endblock %}

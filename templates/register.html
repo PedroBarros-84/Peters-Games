@@ -1,40 +1,62 @@
-{% extends "layout.html" %}
+{% extends "layout.html" %} {% block title %} Register {% endblock %} {% block
+main %}
 
-{% block title %}
-    Register
-{% endblock %}
+<div class="form_div">
+	{% with messages = get_flashed_messages() %} {% if messages %}
+	<div class="alert alert-secondary alert_form" role="alert">
+		{% for message in messages %} {{ message }} {% endfor %}
+	</div>
+	{% endif %} {% endwith %}
 
-{% block main %}
+	<h1 class="form_div_title">REGISTER</h1>
 
-  <div class="form_div">
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="alert alert-secondary alert_form" role="alert">
-          {% for message in messages %}
-            {{ message }}
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
+	<form action="/register" method="post">
+		<div class="form-group">
+			<input
+				autocomplete="off"
+				autofocus
+				class="form-control"
+				name="username"
+				placeholder="Username"
+				type="text"
+				maxlength="20"
+				title="Don't use your email"
+				required
+			/>
+		</div>
+		<div class="form-group">
+			<input
+				class="form-control"
+				name="password"
+				placeholder="Password"
+				type="password"
+				required
+				title="Don't worry, we don't store your password"
+			/>
+		</div>
+		<div class="form-group">
+			<input
+				class="form-control"
+				name="confirmation"
+				placeholder="Confirm Password"
+				type="password"
+				required
+				title="Don't worry, we don't store your password"
+			/>
+		</div>
+		<button class="btn btn-dark" type="submit">Register</button>
+	</form>
 
-    <h1 class="form_div_title">REGISTER</h1>
-
-    <form action="/register" method="post">
-      <div class="form-group">
-        <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text" maxlength="20" title="Don't use your email" required>
-      </div>
-      <div class="form-group">
-        <input class="form-control" name="password" placeholder="Password" type="password" required title="Don't worry, we don't store your password">
-      </div>
-      <div class="form-group">
-        <input class="form-control" name="confirmation" placeholder="Confirm Password" type="password" required title="Don't worry, we don't store your password">
-      </div>
-      <button class="btn btn-dark" type="submit">Register</button>
-    </form>
-    
-    <div class="passinformation">
-      <p>We do not store your password.<br>Learn more about it <a class="passhashlink" href="https://en.wikipedia.org/wiki/Salt_(cryptography)" target="blank">here.</a></p>
-    </div>
-
-  </div>
+	<div class="passinformation">
+		<p>
+			We do not store your password.<br />Learn more about it
+			<a
+				class="passhashlink"
+				href="https://en.wikipedia.org/wiki/Salt_(cryptography)"
+				target="blank"
+				>here.</a
+			>
+		</p>
+	</div>
+</div>
 {% endblock %}

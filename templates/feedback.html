@@ -1,20 +1,23 @@
-{% extends "layout.html" %}
+{% extends "layout.html" %} {% block title %} Message Us {% endblock %} {% block
+main %}
+<div class="form_div">
+	<h1 class="form_div_title">MESSAGE US</h1>
 
-{% block title %}
-    Message Us
-{% endblock %}
-
-{% block main %}
-  <div class="form_div">
-
-    <h1 class="form_div_title">MESSAGE US</h1>
-    
-    <form action="/feedback" method="post">
-      <div class="form-group">
-        <textarea autocomplete="off" class="form-control" name="message" placeholder="Write your feed back here. &#10;Leave your contact if you want us to get back to you." type="text" rows="10" autofocus required></textarea>
-      </div>
-      <button class="btn btn-dark" type="submit">Send email</button>
-    </form>
-  </div>
+	<form action="/feedback" method="post">
+		<div class="form-group">
+			<textarea
+				autocomplete="off"
+				class="form-control"
+				name="message"
+				placeholder="Write your feed back here. &#10;Leave your contact if you want us to get back to you."
+				type="text"
+				rows="10"
+				autofocus
+				required
+			></textarea>
+		</div>
+		<button class="btn btn-dark" type="submit">Send email</button>
+	</form>
+</div>
 
 {% endblock %}

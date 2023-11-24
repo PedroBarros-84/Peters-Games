@@ -2,12 +2,14 @@ import os
 import re
 import psycopg2
 
+from psycopg2.extras import DictCursor
+
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
 from flask_mail import Mail, Message
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 
 from datetime import timedelta
 
@@ -22,24 +24,54 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=120)
 Session(app)
 
-
 # Configure email for user feedback
 app.config['MAIL_SERVER'] = "smtp.mail.yahoo.com"
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
-app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_ON_TIME_PASSWORD')
 mail = Mail(app)
 
 
-# Configure app to use Heroku Postgress Database
-DATABASE_URL = os.environ['DATABASE_URL']
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+# Configure app to use Postgress Database
+DATABASE_URL = os.environ.get('DATABASE_URL')
+try:
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    print("Connection to DB successful")
+except Exception as e:
+    print(f"Connection to DB failed: {e}")
 
+# Define DB connection Singleton
+db_connection = None
+def get_db_connection():
+    global db_connection
+    if db_connection is None or db_connection.closed:
+        db_connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+    return db_connection
 
-# Configure db variable to use sqlalchemy engine
-engine = create_engine(DATABASE_URL)
-db = scoped_session(sessionmaker(bind=engine))
+# Executes a read operation (SELECT) query and returns fetched results
+def execute_query(sql, params=None):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=DictCursor)
+        cursor.execute(sql, params or ())
+        results = cursor.fetchall()
+        cursor.close()
+        return results
+    except Exception as e:
+        print(f"Database error: {e}")
+
+# Executes a write operation (INSERT, UPDATE, DELETE) query and commits the transaction
+def execute_write_query(sql, params=None):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(sql, params or ())
+        conn.commit()
+        cursor.close()
+    except Exception as e:
+        print(f"Database error: {e}")
 
 
 # Home Route
@@ -73,16 +105,16 @@ def login():
             return render_template("login.html")
 
         # Query database for username
-        rows = db.execute("SELECT * FROM users WHERE username = :name", {"name": request.form.get("username")}).fetchall()
+        rows = execute_query("SELECT * FROM users WHERE username = %s LIMIT 1;", [request.form.get("username")])
 
         # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0].passhash, request.form.get("password")):
+        if len(rows) != 1 or not check_password_hash(rows[0]['passhash'], request.form.get("password")):
 
             flash("Invalid username and/or password!")
             return render_template("login.html")
 
         # Remember which user has logged in
-        session["user_id"] = rows[0].id
+        session["user_id"] = rows[0]['id']
 
         # Redirect user to homepage
         flash("Logged In!")
@@ -104,10 +136,10 @@ def register():
     if request.method == "POST":
 
         # Query database for username
-        rows = db.execute("SELECT * FROM users WHERE username = :name", {"name": request.form.get("username")}).fetchall()
+        rows = execute_query("SELECT * FROM users WHERE username = %s;", [request.form.get("username")])
 
         # Fetch all curse words from database
-        cursewords = db.execute("SELECT word FROM cursewords").fetchall()
+        cursewords = execute_query("SELECT word FROM cursewords;")
         words = tuple(map(lambda word: word[0], cursewords))
 
         # Ensure username was submitted
@@ -161,12 +193,10 @@ def register():
         # Create new user row in users table
         username = request.form.get("username")
         hashedPass = generate_password_hash(request.form.get("confirmation"))
-        db.execute("INSERT INTO users (username, passhash) VALUES (:username, :password)",
-                    {"username": username, "password": hashedPass})
-        db.commit()
+        execute_write_query("INSERT INTO users (username, passhash) VALUES (%s, %s);", [username, hashedPass])
 
         # Remember which user has logged in
-        session["user_id"] = db.execute("SELECT id FROM users WHERE username = :username", {"username": username}).fetchone()[0]
+        session["user_id"] = execute_query("SELECT id FROM users WHERE username = %s LIMIT 1;", [username])[0]['id']
 
         # Redirect user to homepage
         flash("Registered!")
@@ -182,7 +212,7 @@ def register():
 def leaderboard():
 
     # Select list of top 10 users with the most points
-    top10 = db.execute("WITH top10 AS (SELECT ROW_NUMBER() OVER(ORDER BY points DESC) leaderboard_position, username, points FROM users) SELECT * FROM top10 LIMIT 10")
+    top10 = execute_query("WITH top10 AS (SELECT ROW_NUMBER() OVER(ORDER BY points DESC) leaderboard_position, username, points FROM users) SELECT * FROM top10 LIMIT 10")
 
     # User reached route via GET (as by clicking a link or via redirect)
     return render_template("leaderboard.html", top10=top10, leaderboard=True)
@@ -219,17 +249,15 @@ def game():
         # When a user is logged-in, his points are shown
         else:
             # When user finishes a game, update points in database
-            db.execute("UPDATE users SET points = :points WHERE id = :id",
-                        {"points": request.form.get("points"), "id": session['user_id']})
-            db.commit()
+            execute_write_query("UPDATE users SET points = %s WHERE id = %s", [request.form.get("points"), session['user_id']])
 
             # Get updated points before reloading game page
-            points = db.execute("SELECT points FROM users WHERE id = :id", {"id": session["user_id"]}).fetchone()[0]
+            points = execute_query("SELECT points FROM users WHERE id = %s LIMIT 1;", [session["user_id"]])[0]['points']
             return render_template("game.html", cardsequence=cardsequence, points=points)
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
-
+        print('User reached route via GET (as by clicking a link or via redirect)')
         # Generate random sequence of 15 card pairs
         cardsequence = [i for i in range(15)] * 2
         shuffle(cardsequence)
@@ -240,7 +268,7 @@ def game():
 
         # When a user is logged-in, his points are shown
         else:
-            points = db.execute("SELECT points FROM users WHERE id = :id", {"id": session["user_id"]}).fetchone()[0]
+            points = execute_query("SELECT points FROM users WHERE id = %s LIMIT 1;", [session["user_id"]])[0]['points']
             return render_template("game.html", cardsequence=cardsequence, points=points)
 
 
@@ -248,8 +276,7 @@ def game():
 def account():
 
     # Select user in database ordered by points position
-    current_user = db.execute("WITH leaderboard AS (SELECT ROW_NUMBER() OVER(ORDER BY points DESC) leaderboard_position, username, points, passhash, id FROM users) SELECT * FROM leaderboard WHERE id = :id",
-                                {"id": session["user_id"]}).fetchone()
+    current_user = execute_query("WITH leaderboard AS (SELECT ROW_NUMBER() OVER(ORDER BY points DESC) leaderboard_position, username, points, passhash, id FROM users) SELECT * FROM leaderboard WHERE id = %s LIMIT 1;", [session["user_id"]])[0]
     
     # User reached route via POST (as by submitting change_pass form)
     if request.method == "POST" and request.form['btn'] == 'change_pass':
@@ -282,8 +309,7 @@ def account():
         # When current password is correct, and new password and confirmation are the same
         # Update password (hash) field in user row
         hashedPass = generate_password_hash(request.form.get("confirmation"))
-        db.execute("UPDATE users SET passhash = :passhash WHERE id = :id", {"passhash": hashedPass, "id": session['user_id']})
-        db.commit()
+        execute_write_query("UPDATE users SET passhash = %s WHERE id = %s;", [hashedPass, session['user_id']])
 
         # Redirect user to home page
         flash("Password Updated!")
@@ -303,8 +329,7 @@ def account():
             return render_template("account.html", current_user=current_user, account=True)
 
         # When current password is correct, delete user info drom database
-        db.execute("DELETE FROM users WHERE id = :id", {"id": session["user_id"]})
-        db.commit()
+        execute_write_query("DELETE FROM users WHERE id = %s LIMIT 1;", [session["user_id"]])
 
         # Forget user_id
         session.clear()
@@ -324,16 +349,23 @@ def feedback():
     # User reached route via POST (as by submitting feedback form)
     if request.method == "POST":
 
-        # Configure and send message as email
-        msg = Message(
-                subject = 'Peters Games Feedback',
-                sender = os.environ['MAIL_USERNAME'],
-                recipients = [os.environ['MAIL_USERNAME']],
-                body = request.form.get("message"))
-        mail.send(msg)
+        try:
+            msg = Message(
+                        subject = 'Peters Games Feedback',
+                        sender = os.environ.get('MAIL_USERNAME'),
+                        recipients = [os.environ.get('MAIL_USERNAME')],
+                )
+            msg.body = request.form.get("message")
+            mail.send(msg)
 
-        # Redirect user to homepage form
-        flash("Thank's for your feedback!")
+            flash("Thank's for your feedback!")
+
+        except Exception as e:
+            flash(f"An error occurred while sending your feedback: {e}")
+            # Optionally log the error for debugging
+            app.logger.error(f"Failed to send feedback email: {e}")
+
+            # Redirect user to homepage form
         return redirect("/")
 
     # User reached route via GET (as by clicking a link or via redirect)
